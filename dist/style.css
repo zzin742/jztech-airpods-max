@@ -20,7 +20,7 @@
 .hero-product img,.hero-macro img,.stage-fallback{filter:brightness(1.043)}
 .hero-product img{width:135%;height:115%;max-width:none;transform:translate(-13%,-7%)}
 
-.brand img{width:22px;height:60px}.hero-macro{height:125%;top:11%}.hero-macro img{object-fit:cover;object-position:top center}@media(max-width:600px){.brand img{width:18px;height:52px}}
+.brand img{width:22px;height:60px}.hero-macro{height:94%;top:9%;width:30%;right:-3%}.hero-macro img{object-fit:cover;object-position:top center}@media(max-width:600px){.brand img{width:18px;height:52px}}
 
 .model-ready .stage-fallback{display:none}
 
