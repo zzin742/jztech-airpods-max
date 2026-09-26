@@ -36,13 +36,22 @@ const poses = [
 ];
 let renderer, camera, scene, model, frame=0, previousChapter=-1;
 let viewport={w:innerWidth,h:innerHeight}, progress=0, inView=false;
+let mobileFrame={top:70,bottom:400,label:430};
+const usesStackedLayout=()=>viewport.w<600&&!(viewport.w>=480&&viewport.h<=500);
 const ui={number:$('.chapter-number'),title:$('.chapter-copy h2'),copy:$('.chapter-copy p'),block:$('.chapter-copy'),line:$('.callout-lines'),path:$('.callout-lines path'),dot:$('.callout-lines circle'),label:$('.material-label')};
 
 function requestFrame(){if(!frame&&!document.hidden)frame=requestAnimationFrame(render);}
 function resize(){
   viewport={w:mount.clientWidth,h:mount.clientHeight};
   if(camera&&renderer){const aspect=viewport.w/viewport.h;camera.left=-2*aspect;camera.right=2*aspect;camera.top=2;camera.bottom=-2;camera.updateProjectionMatrix();renderer.setPixelRatio(Math.min(devicePixelRatio,viewport.w<600?1.4:1.6));renderer.setSize(viewport.w,viewport.h);}
-  updateScroll();
+  updateScroll();measureMobileFrame();
+}
+function measureMobileFrame(){
+  if(!usesStackedLayout())return;
+  const heading=$('.stage-heading');
+  const top=Math.max(68,heading.offsetTop+heading.offsetHeight+18);
+  const copyTop=ui.block.offsetTop;
+  mobileFrame={top,bottom:Math.max(top+100,Math.min(viewport.h*.52,copyTop-62)),label:copyTop-29};
 }
 function updateScroll(){
   progress=THREE.MathUtils.clamp((scrollY-section.offsetTop)/(section.offsetHeight-viewport.h),0,1);
@@ -53,7 +62,7 @@ function updateScroll(){
 }
 function updateCopy(){
   const index=progress<.26?0:progress<.39?1:progress<.54?2:progress<.67?3:progress<.78?4:progress<.88?5:6;
-  if(index!==previousChapter){ui.title.innerHTML=chapters[index][0];ui.copy.textContent=chapters[index][1];ui.number.textContent=index>=3&&index<=5?`POR DENTRO / 0${index-2}`:`0${index+1} / 07`;previousChapter=index;}
+  if(index!==previousChapter){ui.title.innerHTML=chapters[index][0];ui.copy.textContent=chapters[index][1];ui.number.textContent=index>=3&&index<=5?`POR DENTRO / 0${index-2}`:`0${index+1} / 07`;previousChapter=index;measureMobileFrame();}
   const distance=Math.min(...[.26,.39,.54,.67,.78,.88].map(p=>Math.abs(progress-p)));
   const fade=reduceMotion.matches?1:.15+.85*smooth(distance/.014);
   ui.block.style.opacity=fade;ui.block.style.transform=`translateY(${(1-fade)*10}px)`;
@@ -92,7 +101,7 @@ function render(){
   frame=0;softPointer.lerp(pointer,.12);
   if(!reduceMotion.matches){$('.hero-product').style.transform=`translate3d(${softPointer.x*9}px,${softPointer.y*6}px,0)`;$('.hero-macro').style.transform=`translate3d(${-softPointer.x*13}px,${-softPointer.y*8}px,0)`;}
   if(model&&inView){
-    const mobile=viewport.w<600,p=reduceMotion.matches?[0,.36,.48,.64,.75,.85,1][previousChapter]:progress,pose=samplePose(p);poseParts(pose.open);poseSlices(pose,mobile);
+    const mobile=usesStackedLayout(),p=reduceMotion.matches?[0,.36,.48,.64,.75,.85,1][previousChapter]:progress,pose=samplePose(p);poseParts(pose.open);poseSlices(pose,mobile);
     model.rotation.set(pose.rx+softPointer.y*.025,pose.ry+softPointer.x*.06,mix(pose.rz,-.40,mobile?pose.macro:0));
     // Fit the transformed parts, not only the assembled headphone, so no layer clips on mobile.
     model.scale.setScalar(1);model.position.set(0,0,0);model.updateMatrixWorld(true);
@@ -100,21 +109,24 @@ function render(){
     const detailBounds=new THREE.Box3();for(const name of ['rightCup','rightTrim','rightPlate','rightPad','crown'])if(parts[name])detailBounds.expandByObject(parts[name]);
     size.lerp(detailBounds.getSize(new THREE.Vector3()),pose.macro);center.lerp(detailBounds.getCenter(new THREE.Vector3()),pose.macro);
     const height=4,width=4*viewport.w/viewport.h;
-    const scale=Math.min(height*(mobile?.43:.75)/size.y,width*(mobile?.87:.58)/size.x);
-    model.scale.setScalar(scale);model.position.copy(center).multiplyScalar(-scale).add(new THREE.Vector3(width*(mobile?0:-.17),height*(mobile?.20:-.015),0));
+    const frameHeight=mobile?(mobileFrame.bottom-mobileFrame.top)/viewport.h:.75;
+    const frameCenter=mobile?.5-(mobileFrame.top+mobileFrame.bottom)/2/viewport.h:-.015;
+    const compactLandscape=!mobile&&viewport.w<650;
+    const scale=Math.min(height*frameHeight/size.y,width*(mobile?.88:compactLandscape?.52:.58)/size.x);
+    model.scale.setScalar(scale);model.position.copy(center).multiplyScalar(-scale).add(new THREE.Vector3(width*(mobile?0:compactLandscape?-.19:-.17),height*frameCenter,0));
     model.updateMatrixWorld(true);camera.updateMatrixWorld(true);drawCallout(pose);renderer.render(scene,camera);
   }
   if(pointer.distanceTo(softPointer)>.002)requestFrame();
 }
 function drawCallout(pose){
-  const mobile=viewport.w<600,canopy=progress>=.29&&progress<.39,pad=progress>=.43&&progress<.54,macro=progress>=.59&&progress<.88;
+  const mobile=usesStackedLayout(),canopy=progress>=.29&&progress<.39,pad=progress>=.43&&progress<.54,macro=progress>=.59&&progress<.88;
   const selected=previousChapter===4?'rightPlate':previousChapter===5?'rightCup':'rightPad';
   const part=parts[canopy?'canopy':macro?selected:'rightPad'];
   const opacity=canopy?smooth((progress-.29)/.025)*(1-smooth((progress-.37)/.02)):pad?smooth((progress-.43)/.025)*(1-smooth((progress-.52)/.02)):macro?pose.macro:0;
   ui.line.style.opacity=opacity;ui.label.style.opacity=opacity;if(!part||!opacity)return;
   const anchor=new THREE.Vector3(0,canopy?.015:.06,canopy?.02:.1);part.localToWorld(anchor);anchor.project(camera);
   const x=(anchor.x*.5+.5)*viewport.w,y=(-anchor.y*.5+.5)*viewport.h;
-  const endX=viewport.w*(mobile?.12:.11),endY=viewport.h*(mobile?(canopy?.105:.53):(canopy?.16:.77));
+  const endX=viewport.w*(mobile?.12:.11),endY=mobile?mobileFrame.label:viewport.h*(canopy?.16:.77);
   ui.label.textContent=canopy?'Malha respirável':macro?(previousChapter===4?'Encaixe magnético':previousChapter===5?'Alumínio anodizado':'Almofada em tecido de malha'):'Tecido e espuma viscoelástica';ui.label.style.left=`${endX}px`;ui.label.style.top=`${endY-23}px`;
   ui.path.setAttribute('d',`M ${x} ${y} L ${endX+48} ${endY} L ${endX} ${endY}`);ui.dot.setAttribute('cx',x);ui.dot.setAttribute('cy',y);
 }
