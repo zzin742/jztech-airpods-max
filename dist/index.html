@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#dcebf1">
+  <meta name="description" content="AirPods Max. Uma exploração visual do design, das texturas e das camadas de um ícone do som.">
+  <title>AirPods Max — Cada detalhe, em sintonia.</title>
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+  <script type="importmap">{"imports":{"three":"/vendor/three.module.js","three/addons/":"/vendor/addons/"}}</script>
+  <script type="module" src="/experience.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#explorar">Explorar os detalhes</a>
+  <main>
+    <section class="opening" id="inicio" aria-label="AirPods Max azul-céu">
+      <div class="orbit orbit-one" aria-hidden="true"></div>
+      <div class="orbit orbit-two" aria-hidden="true"></div>
+      <div class="orbit orbit-three" aria-hidden="true"></div>
+      <div class="hero-card">
+        <header class="navigation">
+          <a href="#inicio" class="brand" aria-label="AirPods Max — início"><img src="/assets/apple.svg" alt="Apple" width="22" height="26"></a>
+          <nav aria-label="Navegação principal">
+            <a href="#explorar" data-chapter="0">Explorar</a>
+            <a href="#explorar" data-chapter="1">Design</a>
+            <a href="#explorar" data-chapter="2">Detalhes</a>
+          </nav>
+          <span class="edition">Azul-céu</span>
+        </header>
+        <div class="hero-watermark" aria-hidden="true">Air<br>Pods<br>Max</div>
+        <div class="hero-product parallax"><img src="/assets/airpods-front.jpg" width="2012" height="1656" alt="AirPods Max azul-céu, com arco em malha e conchas de alumínio" fetchpriority="high"></div>
+        <div class="hero-copy">
+          <h1>Air<br>Pods<br>Max</h1>
+          <p>Uma nova forma de sentir o som.<br> Um mundo de detalhes para descobrir.</p>
+          <a class="pill" href="#explorar">Explore os detalhes <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="hero-macro parallax" aria-hidden="true"><img src="/assets/airpods-detail.jpg" width="1140" height="1656" alt=""></div>
+        <div class="hero-bottom"><span>Design em sintonia.</span><a href="#explorar">Role para descobrir <span class="scroll-line" aria-hidden="true"></span></a></div>
+      </div>
+    </section>
+    <section class="experience" id="explorar" aria-label="Explore o design do AirPods Max">
+      <div class="experience-sticky">
+        <div class="stage-heading"><a href="#inicio">AirPods Max</a><span>Um olhar mais de perto</span></div>
+        <div id="product-stage" role="img" aria-label="Modelo tridimensional do AirPods Max que se separa em camadas conforme a rolagem"><img class="stage-fallback" src="/assets/airpods-front.jpg" alt=""></div>
+        <div class="experience-type" aria-hidden="true">Por dentro.<br>Por inteiro.</div>
+        <div class="chapter-copy" aria-live="off">
+          <span class="chapter-number">01 / 07</span>
+          <h2>Muito além<br>do que se ouve.</h2>
+          <p>Uma silhueta inconfundível. Explore os materiais e as camadas que dão forma ao som.</p>
+        </div>
+        <svg class="callout-lines" aria-hidden="true"><path></path><circle r="4"></circle></svg>
+        <div class="material-label" aria-hidden="true">Alumínio anodizado</div>
+        <div class="stage-footer"><span class="stage-caption">Cada detalhe, em sintonia.</span><div class="chapter-progress"><span></span></div><span class="stage-percent">00</span></div>
+      </div>
+    </section>
+    <footer class="closing"><a href="#inicio">AirPods Max <span aria-hidden="true">↑</span></a><p>Estudo independente de design e interação. Produto e marca Apple.</p></footer>
+  </main>
+</body>
+</html>
